@@ -1,10 +1,8 @@
-name: Scrap News
+name: Code Complies
 
 on:
-  schedule:
-    # * is a special character in YAML so you have to quote this string
-    - cron:  '30/10 9-10 * * 1-5'
-
+  push:
+    branches: [ master ]
 
 steps:
   - uses: actions/checkout@master
@@ -15,4 +13,3 @@ steps:
       DISCORD_WEBHOOK: ${{secrets.DISCORD_WEBHOOK}}
   - run: dotnet restore
   - run: dotnet build -o out
-  - run: dotnet outs/news-test.dll
