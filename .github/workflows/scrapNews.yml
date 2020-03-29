@@ -15,4 +15,4 @@ steps:
       DISCORD_WEBHOOK: ${{secrets.DISCORD_WEBHOOK}}
   - run: dotnet restore
   - run: dotnet build -o out
-  - run: dotnet outs/news-test.dll
+  - run: dotnet out/news-test.dll
