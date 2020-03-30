@@ -16,3 +16,8 @@ jobs:
           DISCORD_WEBHOOK: ${{secrets.DISCORD_WEBHOOK}}
       - run: dotnet restore
       - run: dotnet build -o out
+        env:
+          DISCORD_WEBHOOK: ${{secrets.DISCORD_WEBHOOK}}
+      - run: echo $DISCORD_WEBHOOK
+        env:
+          DISCORD_WEBHOOK: ${{secrets.DISCORD_WEBHOOK}}
