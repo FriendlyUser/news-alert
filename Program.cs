@@ -9,13 +9,13 @@ using System.Text.Json.Serialization;
 using System.Collections.Generic;
 namespace news_test
 {
-    class WebhookData
+    public class WebhookData
     {
         public string content { get; set; }
     }
-    class Program
+    public class Program
     {
-        static void SendItemToDiscord(XmlNode item) {
+        static public void SendItemToDiscord(XmlNode item) {
             // set discord webhook as private env
             string webhook = Environment.GetEnvironmentVariable("DISCORD_WEBHOOK");
             if (webhook == null) {
@@ -77,7 +77,7 @@ namespace news_test
   
         }
         
-        static string FetchData(string searchText) {
+        static public string FetchData(string searchText) {
             var query = HttpUtility.ParseQueryString(string.Empty);
             query["q"] = searchText;
             string queryString = query.ToString();
