@@ -13,3 +13,5 @@ jobs:
       - run: dotnet restore
       - run: dotnet build -o out
       - run: dotnet test
+        env:
+          ES_INSTANCE: ${{secrets.ES_INSTANCE}}
