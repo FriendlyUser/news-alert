@@ -1,8 +1,16 @@
 using Xunit;
 using Xunit.Abstractions;
 using System.Xml;
+using System.Net.Http;
+using System;
+using Elasticsearch.Net;
+using System.IO;
 namespace news_test
 {
+    public class Guid
+    {
+        public string guid { get; set; }
+    }
     public class TestNotifications
     {
         private readonly ITestOutputHelper output;
@@ -57,6 +65,22 @@ namespace news_test
             Program.SendItemToDiscord(newElem);
             Assert.True(true, "The data was not greater than 100 characters");
             // make sure the data is valid xml
+        }
+        [Fact]
+        public async void AddDocToEsTest()
+        {
+          string esInstance = Environment.GetEnvironmentVariable("ES_INSTANCE");
+          var settings = new ConnectionConfiguration(new Uri(esInstance))
+            .RequestTimeout(TimeSpan.FromMinutes(2));
+
+          var lowlevelClient = new ElasticLowLevelClient(settings);
+          var sample_guid = new Guid
+          {
+              guid = "Martijn"
+          };
+          var asyncIndexResponse = await lowlevelClient.IndexAsync<StringResponse>("test_post", "1", PostData.Serializable(sample_guid)); 
+          string responseString = asyncIndexResponse.Body;
+          Console.WriteLine(responseString);
         }
     }
 }

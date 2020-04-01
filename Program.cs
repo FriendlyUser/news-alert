@@ -7,17 +7,33 @@ using System.Xml;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Collections.Generic;
+using Elasticsearch.Net;
 namespace news_test
 {
+    public class Post {
+        public string guid { get; set; }
+    }
     public class WebhookData
     {
         public string content { get; set; }
+    }
+
+    public class SearchResult {
+        public Hits hits {get; set;}
+    }
+    public class Hits {
+        public Total total {get; set;}
+    }
+    public class Total {
+        public int value {get; set;}
+        public string relation {get; set;}
     }
     public class Program
     {
         static public void SendItemToDiscord(XmlNode item) {
             // set discord webhook as private env
             string webhook = Environment.GetEnvironmentVariable("DISCORD_WEBHOOK");
+            string esInstance = Environment.GetEnvironmentVariable("ES_INSTANCE");
             if (webhook == null) {
                 Console.WriteLine("GET A DISCORD WEBHOOK");
                 return;
@@ -30,7 +46,7 @@ namespace news_test
             string discordTemplate = "{0} \n {1} \n {2} ";
             string discordMessage = string.Format(discordTemplate, item["title"].InnerText,
                 item["pubDate"].InnerText, postLink);
-            Console.WriteLine(discordMessage);
+           // write message of data sent to discord
             var w = new WebhookData() { content = discordMessage };
             using (var streamWriter = new StreamWriter(request.GetRequestStream()))
             {
@@ -41,10 +57,24 @@ namespace news_test
             {
                 var result = streamReader.ReadToEnd();
             }
+            // send data to es instance
+            var settings = new ConnectionConfiguration(new Uri(esInstance))
+                .RequestTimeout(TimeSpan.FromMinutes(2));
+            var lowlevelClient = new ElasticLowLevelClient(settings);
+            var post = new Post
+            {
+                guid = item["guid"].InnerText
+            };
+            var asyncIndexResponse = lowlevelClient.Index<StringResponse>("post", PostData.Serializable(post)); 
+            string responseString = asyncIndexResponse.Body;
+            Console.WriteLine(responseString);
         }
+
+        // add command flags, espeically one to change the index being used
+        // would be good for testing
         static void Main(string[] args)
         {
-            var searchItems = new List<string> { "nextech ar", "hive blockchain stock", "aurora cannabis" };
+            var searchItems = new List<string> { "nextech ar", "hive blockchain stock", "aurora cannabis", "trump putin oil" };
             foreach (string searchText in searchItems)
             {
                 Console.WriteLine(searchText);
@@ -70,7 +100,31 @@ namespace news_test
                     // Console.WriteLine(pubDate);
                     if (utcDate.Subtract(pubDate).TotalHours < 24 * 3) {
                         Console.WriteLine("Within 3 days");
-                        SendItemToDiscord(items[i]);
+                        // check if id is in db
+                        string esInstance = Environment.GetEnvironmentVariable("ES_INSTANCE");
+                        var settings = new ConnectionConfiguration(new Uri(esInstance))
+                            .RequestTimeout(TimeSpan.FromMinutes(2));
+                        var lowlevelClient = new ElasticLowLevelClient(settings);
+                        var searchResponse = lowlevelClient.Search<StringResponse>("post", PostData.Serializable(new
+                        {
+                            query = new
+                            {
+                                match = new
+                                {
+                                    guid = items[i]["guid"].InnerText// items[i]["guid"].InnerText
+                                }
+                            }
+                        }));
+                        var successful = searchResponse.Success;
+                        var responseJson = searchResponse.Body;
+                        // Console.WriteLine(responseJson);
+                        SearchResult searchResult = JsonSerializer.Deserialize<SearchResult>(responseJson);
+                        Console.WriteLine(searchResult.hits);
+                        if (searchResult.hits.total.value == 0) {
+                            SendItemToDiscord(items[i]);
+                        } else {
+                            Console.WriteLine("Match Already in DB, not going to print");
+                        }
                     }
                 }
             }
