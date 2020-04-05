@@ -12,10 +12,22 @@ namespace news_test
 {
     public class Post {
         public string guid { get; set; }
+        public string url { get; set; }
+        public string title { get; set; }
     }
+    // webhook format
+    // https://birdie0.github.io/discord-webhooks-guide/structure/embeds.html
     public class WebhookData
     {
         public string content { get; set; }
+        public WebhookEmbeds[] embeds {get; set;}
+    }
+
+    public class WebhookEmbeds 
+    {
+        public string url { get; set; }
+        public string title { get; set; }
+        public string description { get; set; }
     }
 
     public class SearchResult {
@@ -44,13 +56,34 @@ namespace news_test
             DateTime pubDate = Convert.ToDateTime(item["pubDate"].InnerText);
             string postLink = item["link"].InnerText;
             string discordTemplate = "{0} \n {1} \n {2} ";
-            string discordMessage = string.Format(discordTemplate, item["title"].InnerText,
+            string postTitle = item["title"].InnerText;
+            string postDescription = item["description"].InnerText;
+            string discordMessage = string.Format(discordTemplate, postTitle,
                 item["pubDate"].InnerText, postLink);
-           // write message of data sent to discord
+            // write message of data sent to discord
+            // object converted to json
             var w = new WebhookData() { content = discordMessage };
+
+            // using custom object here
+            var discordMessageObj = new
+            {
+                content = discordMessage,
+                embeds = new [] {
+                    new {
+                        url = postLink,
+                        title = postTitle,
+                        description = postDescription
+                    }
+                }
+            };
+            Console.WriteLine(discordMessageObj);
             using (var streamWriter = new StreamWriter(request.GetRequestStream()))
             {
-                streamWriter.Write(JsonSerializer.Serialize<WebhookData>(w));
+                // serializing a class
+                // streamWriter.Write(JsonSerializer.Serialize<WebhookData>(w));
+
+                // serialize an object
+                streamWriter.Write(JsonSerializer.Serialize(discordMessageObj));   
             }
             var httpResponse = (HttpWebResponse)request.GetResponse();
             using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
@@ -63,7 +96,10 @@ namespace news_test
             var lowlevelClient = new ElasticLowLevelClient(settings);
             var post = new Post
             {
-                guid = item["guid"].InnerText
+                guid = item["guid"].InnerText,
+                url = postLink,
+                title = postTitle
+
             };
             var asyncIndexResponse = lowlevelClient.Index<StringResponse>("post", PostData.Serializable(post)); 
             string responseString = asyncIndexResponse.Body;
