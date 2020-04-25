@@ -5,6 +5,7 @@ using System.Net.Http;
 using System;
 using Elasticsearch.Net;
 using System.IO;
+using System.Threading.Tasks;
 namespace news_alert
 {
     public class Guid
@@ -45,15 +46,15 @@ namespace news_alert
             output.WriteLine("This is output from");
         }
         [Fact]
-        public void FetchDataTest()
+        public async Task FetchDataTest()
         {
             News p1 = new News();  //a object of class  
-            string data = News.FetchData("nextech ar");
+            string data = await News.FetchData("nextech ar");
             Assert.True(data.Length > 100, "The data was not greater than 100 characters");
             // make sure the data is valid xml
         }
         [Fact]
-        public void DiscordMessageTest()
+        public async Task DiscordMessageTest()
         {
             Program p1 = new News();  //a object of class  
             XmlDocument doc = new XmlDocument();
