@@ -47,8 +47,8 @@ namespace news_alert
         [Fact]
         public void FetchDataTest()
         {
-            Program p1 = new Program();  //a object of class  
-            string data = Program.FetchData("nextech ar");
+            News p1 = new News();  //a object of class  
+            string data = News.FetchData("nextech ar");
             Assert.True(data.Length > 100, "The data was not greater than 100 characters");
             // make sure the data is valid xml
         }
