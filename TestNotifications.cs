@@ -54,9 +54,8 @@ namespace news_alert
             // make sure the data is valid xml
         }
         [Fact]
-        public async Task DiscordMessageTest()
+        public void DiscordMessageTest()
         {
-            Program p1 = new News();  //a object of class  
             XmlDocument doc = new XmlDocument();
             doc.LoadXml("<book>" +
             "  <title>Oberon's Legacy</title>" +
