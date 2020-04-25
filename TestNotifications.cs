@@ -5,7 +5,7 @@ using System.Net.Http;
 using System;
 using Elasticsearch.Net;
 using System.IO;
-namespace news_test
+namespace news_alert
 {
     public class Guid
     {
@@ -55,14 +55,14 @@ namespace news_test
         [Fact]
         public void DiscordMessageTest()
         {
-            Program p1 = new Program();  //a object of class  
+            Program p1 = new News();  //a object of class  
             XmlDocument doc = new XmlDocument();
             doc.LoadXml("<book>" +
             "  <title>Oberon's Legacy</title>" +
             "  <price>5.95</price>" +
             "</book>");
             XmlNode newElem = doc.CreateNode("element", "pages", "");
-            Program.SendItemToDiscord(newElem);
+            News.SendItemToDiscord(newElem);
             Assert.True(true, "The data was not greater than 100 characters");
             // make sure the data is valid xml
         }
