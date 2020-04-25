@@ -1,0 +1,21 @@
+name: Scrap News
+
+on:
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '30/10 13-19 * * 1-5'
+
+jobs:
+  scrap:
+    runs-on: ubuntu-16.04
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.100' # SDK Version to use.
+      - run: dotnet restore
+      - run: dotnet build -o out
+      - run: dotnet out/news-test.dll
+        env:
+          DISCORD_WEBHOOK: ${{secrets.DISCORD_WEBHOOK}}
+          ES_INSTANCE: ${{secrets.ES_INSTANCE}}

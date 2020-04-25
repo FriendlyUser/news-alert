@@ -1,0 +1,4 @@
+namespace news_alert
+{
+  
+}
