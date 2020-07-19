@@ -15,7 +15,7 @@ jobs:
           dotnet-version: '3.1.100' # SDK Version to use.
       - run: dotnet restore
       - run: dotnet build -o out
-      - run: dotnet out/news-test.dll
+      - run: dotnet out/news-alert.dll
         env:
           DISCORD_WEBHOOK: ${{secrets.DISCORD_WEBHOOK}}
           ES_INSTANCE: ${{secrets.ES_INSTANCE}}
