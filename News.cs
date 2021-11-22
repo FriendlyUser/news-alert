@@ -93,8 +93,15 @@ namespace news_alert
                 XmlNodeList items = doc.GetElementsByTagName("item");
                 DateTime utcDate = DateTime.UtcNow;
                 for (int i=0; i < 5; i++)
-                {   
-                    DateTime pubDate = Convert.ToDateTime(items[i]["pubDate"].InnerText);
+                {   string pubDateStr = "";
+                    try {
+                        pubDateStr = items[i]["pubDate"].InnerText;
+                    } catch (NullReferenceException e) {
+                        Console.WriteLine("\nException Caught!");	
+                        Console.WriteLine("Message :{0} ",e.Message);
+                        continue;
+                    }
+                    DateTime pubDate = Convert.ToDateTime(pubDateStr);
                     // Console.WriteLine(pubDate);
                     if (utcDate.Subtract(pubDate).TotalHours < 24 * 2) {
                         Console.WriteLine("Within 2 days");
