@@ -78,10 +78,9 @@ namespace news_alert
             await Task.CompletedTask;
         }
         static async public Task checkNews() {
-            var searchItems = new List<string> { "nextech ar",
-                "hive blockchain stock", "covid-19 vaccine oxford", "imaginear",
-                "YDX INNOVATION CORP", "vsby stock",
-                "LOOP INSIGHTS INC"
+            var searchItems = new List<string> { "hydrogen",
+                "analyticGPT", "natural gas", "recession",
+                "Tech layoffs", "Bard AI"
             };
             foreach (string searchText in searchItems)
             {
